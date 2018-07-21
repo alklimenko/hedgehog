@@ -1,0 +1,1 @@
+SELECT * FROM table_b WHERE id < 123

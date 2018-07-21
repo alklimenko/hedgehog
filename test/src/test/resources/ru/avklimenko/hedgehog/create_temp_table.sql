@@ -1,0 +1,4 @@
+CREATE TABLE IF NOT EXISTS TMP_TABLE (
+    ID integer NOT NULL PRIMARY KEY,
+    TEXT string
+);

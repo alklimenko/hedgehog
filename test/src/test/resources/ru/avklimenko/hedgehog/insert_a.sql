@@ -1,0 +1,1 @@
+INSERT INTO table_a (name) VALUES('{{ name }}')

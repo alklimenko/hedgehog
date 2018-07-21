@@ -1,0 +1,1 @@
+SELECT * FROM xxx WHERE a = {{ a }}

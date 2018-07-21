@@ -1,0 +1,1 @@
+INSERT INTO table_c (name, a_id, b_id) VALUES('{{ name }}', {{ a_id }}, {{ b_id }})
