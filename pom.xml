@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--suppress MavenDuplicateDependenciesInspection -->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -13,6 +14,7 @@
         <module>common</module>
         <module>executor</module>
         <module>test</module>
+        <module>freemarker</module>
     </modules>
 
     <properties>
@@ -132,6 +134,13 @@
             </dependency>
 
             <dependency>
+                <groupId>ru.avklimenko.hedgehog</groupId>
+                <artifactId>freemarker</artifactId>
+                <version>1.0-SNAPSHOT</version>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
                 <groupId>org.reflections</groupId>
                 <artifactId>reflections</artifactId>
                 <version>0.9.11</version>
@@ -140,6 +149,7 @@
         </dependencies>
     </dependencyManagement>
 
+    <!--suppress MavenDuplicateDependenciesInspection -->
     <dependencies>
         <!-- logger -->
         <dependency>

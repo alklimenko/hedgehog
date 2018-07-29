@@ -3,7 +3,7 @@ package ru.avklimenko.hedgehog;
 import java.sql.Statement;
 import java.util.concurrent.CompletableFuture;
 
-public class Result extends AsyncExecutor {
+class Result extends AsyncExecutor {
     private CompletableFuture<Void> asyncRes = null;
     private boolean success;
 

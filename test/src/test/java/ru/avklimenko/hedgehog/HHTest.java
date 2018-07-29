@@ -1,6 +1,5 @@
 package ru.avklimenko.hedgehog;
 
-import org.apache.log4j.Logger;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -15,7 +14,7 @@ import static ru.avklimenko.hedgehog.Utils.map;
 public class HHTest extends Assert {
     private final static String connectionStringSQLite  = "jdbc:sqlite:"
             + (System.getProperty("user.dir") + "/src/test/resources/ru/avklimenko/hedgehog/hedgehog.sqlite")
-            .replaceAll("[\\/]", "\\" + File.separator);
+            .replaceAll("[/]", "\\" + File.separator);
     private final static String packageName = "ru/avklimenko/hedgehog/";
     private static final HHExecutor executor = new HHExecutor(connectionStringSQLite, packageName);
 
@@ -47,7 +46,7 @@ public class HHTest extends Assert {
     @Test(dataProvider = "selectAccByCystTypeTestData")
     void selectAccByCystTypeTest(String custType, Integer rowCount, Integer rowNum, Integer accountId, String openDate, String productCD, Double availBalance) {
         SelectResult result = executor.selectFromResource("select_acc_by_cust_type.sql", map("cust_type", custType));
-        assertEquals(result.size(), rowCount.intValue());
+        assertEquals(result.getRowsCount(), rowCount.intValue());
         List<Object> row = result.getRow(rowNum);
         assertEquals(row.get(0), accountId);
         assertEquals(row.get(1), openDate);

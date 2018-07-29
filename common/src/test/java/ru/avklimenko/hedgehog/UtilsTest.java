@@ -2,7 +2,6 @@ package ru.avklimenko.hedgehog;
 
 import org.testng.annotations.Test;
 
-import javax.validation.constraints.AssertTrue;
 import java.util.Map;
 
 import static org.testng.Assert.*;

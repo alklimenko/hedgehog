@@ -1,87 +1,121 @@
 package ru.avklimenko.hedgehog;
 
 import ru.avklimenko.hedgehog.exceptions.HHException;
-import ru.avklimenko.hedgehog.exceptions.HHSQLSyntaxErrorException;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.math.BigDecimal;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.Date;
 import java.util.Map;
 
-public class SelectResult extends Result {
-    protected List<String> titles;
-    protected Map<String, Integer> colIndex = new HashMap<>();
-    protected List<List<Object>> data = new ArrayList<>();
-
+public class SelectResult extends SelectResultData {
     SelectResult(String sql, HHConnection connection, Statement statement) {
         super(sql, connection, statement);
     }
 
-    void selectAsync() {
-        logger.debug("[SELECT]==> " + sql.replaceAll("\r?\n", " "));
-        try (ResultSet resultSet = statement.executeQuery(sql)) {
-            // Get column titles
-            int columns = resultSet.getMetaData().getColumnCount();
-            setColumns(columns);
-            for (int i = 0; i < columns; ++i) {
-                setTitle(i, resultSet.getMetaData().getColumnName(i + 1));
-            }
-
-            // Get data
-            while (resultSet.next()) {
-                List<Object> row = new ArrayList<>();
-                for (int i = 0; i < columns; ++i) {
-                    row.add(resultSet.getObject(1 + i));
-                }
-                addRow(row);
-            }
-
-            logger.debug("[SELECT]<== " + data.size() + " rows");
-            connection.setFree();
-        } catch (SQLException e) {
-            setSuccess(false);
-            logger.error("[SELECT] Error while execute select query: " + e.toString());
-            throw new HHSQLSyntaxErrorException("[SELECT] Error while execute select query: " + e.toString(), e);
-        }
+    public String getString(int row, int column) {
+        return ObjectMapper.mapTo(getData().get(row).get(column), String.class);
     }
 
-    private void setColumns(int columns) {
-        titles = new ArrayList<>(columns);
-        for (int i = 0; i < columns; ++i) {
-            titles.add("COLUMN N" + i);
-        }
+    public String getString(int row, String title) {
+        return getString(row, getColumnIndex(title));
     }
 
-    private void setTitle(int column, String title) {
-        titles.set(column, title);
-        colIndex.put(title, column);
+    public Byte getByte(int row, int column) {
+        return ObjectMapper.mapTo(getData().get(row).get(column), Byte.class);
     }
 
-    private void addRow(List<Object> row) {
-        data.add(row);
+    public Byte getByte(int row, String title) {
+        return getByte(row, getColumnIndex(title));
     }
 
-    public String getTitle(int column) {
-        join();
-        return titles.get(column);
+    public Short getShort(int row, int column) {
+        return ObjectMapper.mapTo(getData().get(row).get(column), Short.class);
     }
 
-    public int size() {
-        join();
-        return data.size();
+    public Short getShort(int row, String title) {
+        return getShort(row, getColumnIndex(title));
     }
 
-    public int getColumns() {
-        join();
-        return titles.size();
+    public Integer getInteger(int row, int column) {
+        return ObjectMapper.mapTo(getData().get(row).get(column), Integer.class);
     }
 
-    public List<Object> getRow(int row) {
-        join();
-        return data.get(row);
+    public Integer getInteger(int row, String title) {
+        return getInteger(row, getColumnIndex(title));
+    }
+
+    public Long getLong(int row, int column) {
+        return ObjectMapper.mapTo(getData().get(row).get(column), Long.class);
+    }
+
+    public Long getLong(int row, String title) {
+        return getLong(row, getColumnIndex(title));
+    }
+
+    public Boolean getBoolean(int row, int column) {
+        return ObjectMapper.mapTo(getData().get(row).get(column), Boolean.class);
+    }
+
+    public Boolean getBoolean(int row, String title) {
+        return getBoolean(row, getColumnIndex(title));
+    }
+
+    public Float getFloat(int row, int column) {
+        return ObjectMapper.mapTo(getData().get(row).get(column), Float.class);
+    }
+
+    public Float getFloat(int row, String title) {
+        return getFloat(row, getColumnIndex(title));
+    }
+
+    public Double getDouble(int row, int column) {
+        return ObjectMapper.mapTo(getData().get(row).get(column), Double.class);
+    }
+
+    public Double getDouble(int row, String title) {
+        return getDouble(row, getColumnIndex(title));
+    }
+
+    public BigDecimal getBigDecimal(int row, int column) {
+        return ObjectMapper.mapTo(getData().get(row).get(column), BigDecimal.class);
+    }
+
+    public BigDecimal getBigDecimal(int row, String title) {
+        return getBigDecimal(row, getColumnIndex(title));
+    }
+
+    public Date getDate(int row, int column) {
+        return ObjectMapper.mapTo(getData().get(row).get(column), Date.class);
+    }
+
+    public Date getDate(int row, String title) {
+        return getDate(row, getColumnIndex(title));
+    }
+
+    private Class byteArrayClass = (new byte[]{0}).getClass();
+
+    public byte[] getByteArray(int row, int column) {
+        return (byte[]) ObjectMapper.mapTo(getData().get(row).get(column), byteArrayClass);
+    }
+
+    public byte[] getByteArray(int row, String title) {
+        return getByteArray(row, getColumnIndex(title));
+    }
+
+    public Object getObject(int row, int column) {
+        return getData().get(row).get(column);
+    }
+
+    public Object getObject(int row, String title) {
+        return getObject(row, getColumnIndex(title));
+    }
+
+    public <T> T getObject(int row, int column, Class<T> tClass) {
+        return ObjectMapper.mapTo(getData().get(row).get(column), tClass);
+    }
+
+    public <T> T getObject(int row, String title, Class<T> tClass) {
+        return getObject(row, getColumnIndex(title), tClass);
     }
 
     public <T> T mapTo(Class<T> tClass) {
