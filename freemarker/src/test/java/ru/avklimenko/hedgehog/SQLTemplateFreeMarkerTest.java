@@ -19,4 +19,12 @@ public class SQLTemplateFreeMarkerTest {
         String string = template.getSQLFromString("${a} + ${b} = ${c}", map("a", 2, "b", 3, "c", 5));
         assertEquals(string, "2 + 3 = 5");
     }
+
+    @Test
+    public void testNumberFormat() {
+        String string = template.getSQLFromString("${a}", map("a", 2000000));
+        assertEquals(string, "2000000");
+        string = template.getSQLFromString("${a}", map("a", 234.345));
+        assertEquals(string, "234.345");
+    }
 }

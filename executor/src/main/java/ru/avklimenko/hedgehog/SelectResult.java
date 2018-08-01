@@ -13,7 +13,7 @@ public class SelectResult extends SelectResultData {
     }
 
     public String getString(int row, int column) {
-        return ObjectMapper.mapTo(getData().get(row).get(column), String.class);
+        return ObjectMapper.cast(getData().get(row).get(column), String.class);
     }
 
     public String getString(int row, String title) {
@@ -21,7 +21,7 @@ public class SelectResult extends SelectResultData {
     }
 
     public Byte getByte(int row, int column) {
-        return ObjectMapper.mapTo(getData().get(row).get(column), Byte.class);
+        return ObjectMapper.cast(getData().get(row).get(column), Byte.class);
     }
 
     public Byte getByte(int row, String title) {
@@ -29,7 +29,7 @@ public class SelectResult extends SelectResultData {
     }
 
     public Short getShort(int row, int column) {
-        return ObjectMapper.mapTo(getData().get(row).get(column), Short.class);
+        return ObjectMapper.cast(getData().get(row).get(column), Short.class);
     }
 
     public Short getShort(int row, String title) {
@@ -37,7 +37,7 @@ public class SelectResult extends SelectResultData {
     }
 
     public Integer getInteger(int row, int column) {
-        return ObjectMapper.mapTo(getData().get(row).get(column), Integer.class);
+        return ObjectMapper.cast(getData().get(row).get(column), Integer.class);
     }
 
     public Integer getInteger(int row, String title) {
@@ -45,7 +45,7 @@ public class SelectResult extends SelectResultData {
     }
 
     public Long getLong(int row, int column) {
-        return ObjectMapper.mapTo(getData().get(row).get(column), Long.class);
+        return ObjectMapper.cast(getData().get(row).get(column), Long.class);
     }
 
     public Long getLong(int row, String title) {
@@ -53,7 +53,7 @@ public class SelectResult extends SelectResultData {
     }
 
     public Boolean getBoolean(int row, int column) {
-        return ObjectMapper.mapTo(getData().get(row).get(column), Boolean.class);
+        return ObjectMapper.cast(getData().get(row).get(column), Boolean.class);
     }
 
     public Boolean getBoolean(int row, String title) {
@@ -61,7 +61,7 @@ public class SelectResult extends SelectResultData {
     }
 
     public Float getFloat(int row, int column) {
-        return ObjectMapper.mapTo(getData().get(row).get(column), Float.class);
+        return ObjectMapper.cast(getData().get(row).get(column), Float.class);
     }
 
     public Float getFloat(int row, String title) {
@@ -69,7 +69,7 @@ public class SelectResult extends SelectResultData {
     }
 
     public Double getDouble(int row, int column) {
-        return ObjectMapper.mapTo(getData().get(row).get(column), Double.class);
+        return ObjectMapper.cast(getData().get(row).get(column), Double.class);
     }
 
     public Double getDouble(int row, String title) {
@@ -77,7 +77,7 @@ public class SelectResult extends SelectResultData {
     }
 
     public BigDecimal getBigDecimal(int row, int column) {
-        return ObjectMapper.mapTo(getData().get(row).get(column), BigDecimal.class);
+        return ObjectMapper.cast(getData().get(row).get(column), BigDecimal.class);
     }
 
     public BigDecimal getBigDecimal(int row, String title) {
@@ -85,7 +85,7 @@ public class SelectResult extends SelectResultData {
     }
 
     public Date getDate(int row, int column) {
-        return ObjectMapper.mapTo(getData().get(row).get(column), Date.class);
+        return ObjectMapper.cast(getData().get(row).get(column), Date.class);
     }
 
     public Date getDate(int row, String title) {
@@ -95,7 +95,7 @@ public class SelectResult extends SelectResultData {
     private Class byteArrayClass = (new byte[]{0}).getClass();
 
     public byte[] getByteArray(int row, int column) {
-        return (byte[]) ObjectMapper.mapTo(getData().get(row).get(column), byteArrayClass);
+        return (byte[]) ObjectMapper.cast(getData().get(row).get(column), byteArrayClass);
     }
 
     public byte[] getByteArray(int row, String title) {
@@ -111,7 +111,7 @@ public class SelectResult extends SelectResultData {
     }
 
     public <T> T getObject(int row, int column, Class<T> tClass) {
-        return ObjectMapper.mapTo(getData().get(row).get(column), tClass);
+        return ObjectMapper.cast(getData().get(row).get(column), tClass);
     }
 
     public <T> T getObject(int row, String title, Class<T> tClass) {

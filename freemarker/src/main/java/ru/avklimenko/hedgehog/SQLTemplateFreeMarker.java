@@ -20,6 +20,7 @@ public class SQLTemplateFreeMarker implements ISQLTemplate {
         cfg.setClassForTemplateLoading(SQLTemplateFreeMarker.class, "/");
         cfg.setDefaultEncoding("UTF-8");
         cfg.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
+        cfg.setNumberFormat("computer");
     }
 
     private String implementTemplate(Template template, Map<String, Object> context) {

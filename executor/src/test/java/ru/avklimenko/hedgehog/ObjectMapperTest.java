@@ -7,25 +7,27 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.testng.Assert.*;
 
 public class ObjectMapperTest {
 
     @Test
-    public void testMapTo() {
+    public void testCast() {
         Object obj = 5;
-        Integer iobj = ObjectMapper.mapTo(obj, Integer.class);
+        Integer iobj = ObjectMapper.cast(obj, Integer.class);
         assertNotNull(iobj);
         assertEquals(iobj, new Integer(5));
 
-        Number nobj = ObjectMapper.mapTo(obj, Number.class);
+        Number nobj = ObjectMapper.cast(obj, Number.class);
         assertNotNull(nobj);
         assertEquals(nobj, 5);
     }
 
     private <T> void test1(Object obj, Class<T> tClass, T exp) {
-        T val = ObjectMapper.mapTo(obj, tClass);
+        T val = ObjectMapper.cast(obj, tClass);
         assertNotNull(val);
         assertEquals(val, exp);
     }
@@ -33,7 +35,7 @@ public class ObjectMapperTest {
     private <T, E extends Exception> void testExc(Object obj, Class<T> tClass, Class<E> eClass) {
         boolean tr = false;
         try {
-            ObjectMapper.mapTo(obj, tClass);
+            ObjectMapper.cast(obj, tClass);
         } catch (Exception e) {
             if (e.getClass().isAssignableFrom(eClass)) {
                 tr = true;
@@ -43,7 +45,7 @@ public class ObjectMapperTest {
     }
 
     @Test
-    public void testMapToFromByte() {
+    public void testCastByte() {
         byte value = (byte) (Math.random() * (Byte.MAX_VALUE - Byte.MIN_VALUE) + Byte.MIN_VALUE);
         Object obj = value;
 
@@ -64,7 +66,7 @@ public class ObjectMapperTest {
     }
 
     @Test
-    public void testMapToFromShort() {
+    public void testCastShort() {
         short value = (short) (Math.random() * (Short.MAX_VALUE - Short.MIN_VALUE) + Short.MIN_VALUE);
         Object obj = value;
 
@@ -86,7 +88,7 @@ public class ObjectMapperTest {
     }
 
     @Test
-    public void testMapToFromInteger() {
+    public void testCastInteger() {
         int value = (int) (Math.random() * ((long) Integer.MAX_VALUE - Integer.MIN_VALUE) + Integer.MIN_VALUE);
         Object obj = value;
 
@@ -110,7 +112,7 @@ public class ObjectMapperTest {
     }
 
     @Test
-    public void testMapToFromLong() {
+    public void testCastLong() {
         long value = (long) (Math.random() * Long.MAX_VALUE) * (Math.random() < 0.5 ? 1 : -1);
         Object obj = value;
 
@@ -137,7 +139,7 @@ public class ObjectMapperTest {
     }
 
     @Test
-    public void testMapToFromFloat() {
+    public void testCastFloat() {
         float value = (float) (Math.random() * Float.MAX_VALUE) * (Math.random() < 0.5 ? 1 : -1);
         Object obj = value;
 
@@ -147,7 +149,7 @@ public class ObjectMapperTest {
     }
 
     @Test
-    public void testMapToFromDouble() {
+    public void testCastDouble() {
         double value = (Math.random() * Double.MAX_VALUE) * (Math.random() < 0.5 ? 1 : -1);
         Object obj = value;
 
@@ -160,15 +162,15 @@ public class ObjectMapperTest {
     }
 
     @Test
-    public void testMapToFromByteArray() throws ClassNotFoundException {
+    public void testCastByteArray() throws ClassNotFoundException {
         byte[] bytes = {1,2,3,4,5};
-        byte[] val = (byte[]) ObjectMapper.mapTo(bytes, Class.forName("[B"));
+        byte[] val = (byte[]) ObjectMapper.cast(bytes, Class.forName("[B"));
         assertNotNull(val);
         assertEquals(val, bytes);
     }
 
     @Test
-    public void testMapToDateFromDates() {
+    public void testCastDates() {
         long ts = new Date().getTime();
         Timestamp timestamp = new Timestamp(ts);
         java.sql.Date date = new java.sql.Date(ts);
@@ -177,5 +179,40 @@ public class ObjectMapperTest {
         test1(timestamp, Date.class, timestamp);
         test1(date, Date.class, date);
         test1(time, Date.class, time);
+    }
+
+    @Test
+    public void testMapTo1() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("a", 123);
+        map.put("b", 321.21f);
+        map.put("c", "abcd");
+
+        ClassForMap map1 = ObjectMapper.mapTo(map, ClassForMap.class);
+        assertNotNull(map1);
+        assertEquals(map1.getA(), map.get("a"));
+        assertEquals(map1.getB(), (Float) map.get("b"), 1e-7);
+        assertEquals(map1.getC(), map.get("c").toString());
+
+        map.clear();
+        map.put("x", 321);
+        map.put("y", 432.23f);
+        map.put("z", "xyz");
+
+        map1 = ObjectMapper.mapTo(map, ClassForMap.class);
+        assertNotNull(map1);
+        assertNull(map1.getA());
+        assertNull(map1.getB());
+        assertNull(map1.getC());
+
+        Map<String, String> synonyms = new HashMap<>();
+        synonyms.put("x", "a");
+        synonyms.put("y", "b");
+        synonyms.put("z", "c");
+        map1 = ObjectMapper.mapToSynonym(map, ClassForMap.class, synonyms);
+        assertNotNull(map1);
+        assertEquals(map1.getA(), map.get("x"));
+        assertEquals(map1.getB(), (Float) map.get("y"), 1e-7);
+        assertEquals(map1.getC(), map.get("z").toString());
     }
 }

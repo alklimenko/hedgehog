@@ -19,4 +19,12 @@ public class SQLTemplatePebbleTest extends Assert {
         String string = template.getSQLFromString("{{a}} + {{b}} = {{c}}", map("a", 1, "b", 2, "c", 3));
         assertEquals(string, "1 + 2 = 3");
     }
+
+    @Test
+    public void testNumberFormat() {
+        String string = template.getSQLFromString("{{a}}", map("a", 2000000));
+        assertEquals(string, "2000000");
+        string = template.getSQLFromString("{{a}}", map("a", 234.345));
+        assertEquals(string, "234.345");
+    }
 }

@@ -1,12 +1,16 @@
 package ru.avklimenko.hedgehog;
 
 import ru.avklimenko.hedgehog.exceptions.HHCastException;
+import ru.avklimenko.hedgehog.exceptions.HHException;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public final class ObjectMapper {
     private static final BigDecimal INT_MAX_VALUE = new BigDecimal(Integer.MAX_VALUE);
@@ -225,7 +229,7 @@ public final class ObjectMapper {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> T mapTo(Object obj, Class<T> tClass) {
+    public static <T> T cast(Object obj, Class<T> tClass) {
         if (obj == null) {
             return null;
         }
@@ -245,5 +249,101 @@ public final class ObjectMapper {
         }
 
         throw new HHCastException("Cannot convert value of the class \"" + obj.getClass().getName() + "\" to the value of the class \"" + tClass.getName() + "\"!");
+    }
+
+    private static class ClassMapper {
+        Field field = null;
+        Method setter = null;
+
+        ClassMapper(Field field) {
+            assert field != null;
+            this.field = field;
+        }
+
+        ClassMapper(Method setter) {
+            assert setter != null;
+            this.setter = setter;
+        }
+
+        @Override
+        public int hashCode() {
+            return field.hashCode() + setter.hashCode() * 3 + 11;
+        }
+
+        @Override
+        public boolean equals(Object mapper) {
+            if (mapper == this) {
+                return true;
+            }
+            if (!mapper.getClass().equals(KeyClass2.class)) {
+                return false;
+            }
+            return hashCode() == mapper.hashCode()
+                    && (field.equals(((ClassMapper) mapper).field) && setter.equals(((ClassMapper) mapper).setter));
+        }
+    }
+
+    public static <T> Map<String, ClassMapper> getMapper(Map<String, Object> map, Class<T> tClass) {
+        Map<String, ClassMapper> mapper = new HashMap<>();
+        Field[] fields = tClass.getFields();
+        Method[] methods = tClass.getMethods();
+        forMap:
+        for (String key : map.keySet()) {
+            // try over field
+            for (Field field : fields) {
+                if (field.getName().equals(key)) {
+                    mapper.put(key, new ClassMapper(field));
+                    continue forMap;
+                }
+            }
+            // try setter
+            for (Method method : methods) {
+                if (method.getName().matches("(?i:^set_?" + key + "$)")) {
+                    mapper.put(key, new ClassMapper(method));
+                    continue forMap;
+                }
+            }
+        }
+        return mapper;
+    }
+
+    public static <T> T mapTo(Map<String, Object> map, Class<T> tClass) {
+        return mapTo(map, tClass, getMapper(map, tClass));
+    }
+
+    public static <T> T mapToSynonym(Map<String, Object> map, Class<T> tClass, Map<String, String> synonyms) {
+        Map<String, Object> map2 = new HashMap<>();
+        for (String key : map.keySet()) {
+            map2.put(synonyms.getOrDefault(key, key), map.get(key));
+        }
+        return mapTo(map2, tClass);
+    }
+
+    private static <T> T mapTo(Map<String, Object> map, Class<T> tClass, Map<String, ClassMapper> mapper) {
+        T object;
+        try {
+            object = tClass.newInstance();
+        } catch (IllegalAccessException | InstantiationException e) {
+            throw new HHException("Class \"" + tClass.getName() + "\" must have public default constructor!", e);
+        }
+        for (String key : map.keySet()) {
+            if (!mapper.containsKey(key)) {
+                continue;
+            }
+            if (mapper.get(key).field != null) {
+                try {
+                    mapper.get(key).field.set(object, cast(map.get(key), mapper.get(key).field.getType()));
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                try {
+                    mapper.get(key).setter.invoke(object, cast(map.get(key), mapper.get(key).setter.getParameterTypes()[0]));
+                } catch (IllegalAccessException | InvocationTargetException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return object;
     }
 }
