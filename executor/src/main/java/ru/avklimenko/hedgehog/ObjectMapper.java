@@ -251,7 +251,7 @@ public final class ObjectMapper {
         throw new HHCastException("Cannot convert value of the class \"" + obj.getClass().getName() + "\" to the value of the class \"" + tClass.getName() + "\"!");
     }
 
-    private static class ClassMapper {
+    static class ClassMapper {
         Field field = null;
         Method setter = null;
 
@@ -289,6 +289,13 @@ public final class ObjectMapper {
         Method[] methods = tClass.getMethods();
         forMap:
         for (String key : map.keySet()) {
+            // try setter
+            for (Method method : methods) {
+                if (method.getName().matches("(?i:^set_?" + key + "$)")) {
+                    mapper.put(key, new ClassMapper(method));
+                    continue forMap;
+                }
+            }
             // try over field
             for (Field field : fields) {
                 if (field.getName().equals(key)) {
@@ -296,10 +303,28 @@ public final class ObjectMapper {
                     continue forMap;
                 }
             }
+        }
+        return mapper;
+    }
+
+    public static <T> Map<String, ClassMapper> getMapper(Map<String, Object> map, Class<T> tClass, Map<String, String> synonyms) {
+        Map<String, ClassMapper> mapper = new HashMap<>();
+        Field[] fields = tClass.getFields();
+        Method[] methods = tClass.getMethods();
+        forMap:
+        for (String key : map.keySet()) {
+            String key2 = synonyms.getOrDefault(key, key);
             // try setter
             for (Method method : methods) {
-                if (method.getName().matches("(?i:^set_?" + key + "$)")) {
+                if (method.getName().matches("(?i:^set_?" + key2 + "$)")) {
                     mapper.put(key, new ClassMapper(method));
+                    continue forMap;
+                }
+            }
+            // try over field
+            for (Field field : fields) {
+                if (field.getName().equals(key2)) {
+                    mapper.put(key, new ClassMapper(field));
                     continue forMap;
                 }
             }
@@ -312,14 +337,10 @@ public final class ObjectMapper {
     }
 
     public static <T> T mapToSynonym(Map<String, Object> map, Class<T> tClass, Map<String, String> synonyms) {
-        Map<String, Object> map2 = new HashMap<>();
-        for (String key : map.keySet()) {
-            map2.put(synonyms.getOrDefault(key, key), map.get(key));
-        }
-        return mapTo(map2, tClass);
+        return mapTo(map, tClass, getMapper(map, tClass, synonyms));
     }
 
-    private static <T> T mapTo(Map<String, Object> map, Class<T> tClass, Map<String, ClassMapper> mapper) {
+    static <T> T mapTo(Map<String, Object> map, Class<T> tClass, Map<String, ClassMapper> mapper) {
         T object;
         try {
             object = tClass.newInstance();

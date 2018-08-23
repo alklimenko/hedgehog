@@ -4,7 +4,9 @@ import ru.avklimenko.hedgehog.exceptions.HHException;
 
 import java.math.BigDecimal;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 public class SelectResult extends SelectResultData {
@@ -118,13 +120,31 @@ public class SelectResult extends SelectResultData {
         return getObject(row, getColumnIndex(title), tClass);
     }
 
-    public <T> T mapTo(Class<T> tClass) {
-        join();
-        throw new HHException("NotImplemented");
+    public <T> List<T> mapTo(Class<T> tClass) {
+        List<T> result = new ArrayList<>();
+        if (getData().isEmpty()) {
+            return result;
+        }
+        Map<String, ObjectMapper.ClassMapper> mapper = ObjectMapper.getMapper(getRowMap(0), tClass);
+        for (int i = 0; i < getData().size(); ++i) {
+            Map<String, Object> rowMap = getRowMap(i);
+            T obj = ObjectMapper.mapTo(rowMap, tClass, mapper);
+            result.add(obj);
+        }
+        return result;
     }
 
-    public <T> T mapTo(Class<T> tClass, Map<String, String> mapper) {
-        join();
-        throw new HHException("NotImplemented");
+    public <T> List<T> mapTo(Class<T> tClass, Map<String, String> mapper) {
+        List<T> result = new ArrayList<>();
+        if (getData().isEmpty()) {
+            return result;
+        }
+        Map<String, ObjectMapper.ClassMapper> mapperClass = ObjectMapper.getMapper(getRowMap(0), tClass, mapper);
+        for (int i = 0; i < getData().size(); ++i) {
+            Map<String, Object> rowMap = getRowMap(i);
+            T obj = ObjectMapper.mapTo(rowMap, tClass, mapperClass);
+            result.add(obj);
+        }
+        return result;
     }
 }

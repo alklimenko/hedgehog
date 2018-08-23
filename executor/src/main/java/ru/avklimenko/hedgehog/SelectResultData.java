@@ -95,6 +95,15 @@ class SelectResultData extends Result {
         return getData().get(row);
     }
 
+    public Map<String, Object> getRowMap(int row) {
+        List<Object> row1 = getRow(row);
+        Map<String, Object> map = new HashMap<>();
+        for (int i = 0; i < row1.size(); ++i) {
+            map.put(getTitle(i), row1.get(i));
+        }
+        return map;
+    }
+
     public int getColumnIndex(String title) {
         if (!getColumnIndices().containsKey(title)) {
             throw new HHInvalidParameterException("The result does not contains \"" + title + "\" column");
